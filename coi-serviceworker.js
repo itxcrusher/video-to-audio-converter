@@ -1,8 +1,3 @@
-let cois = {
-    shouldRegister: () => true,
-    shouldDeregister: () => false,
-    doReload: () => true,
-};
 if(typeof window === 'undefined') {
     self.addEventListener("install", () => self.skipWaiting());
     self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
@@ -23,9 +18,12 @@ if(typeof window === 'undefined') {
         }).catch((e) => console.error(e)));
     });
 } else {
-    if (cois.shouldRegister()) {
+    if (!window.crossOriginIsolated) {
         navigator.serviceWorker.register(window.document.currentScript.src).then((registration) => {
-            if (cois.doReload()) window.location.reload();
-        }, (err) => console.error("COI Service Worker Failed to Register", err));
+            console.log("COI: Registering Service Worker and reloading to enable headers...");
+            window.location.reload();
+        }, (err) => console.error("COI: Failed to register service worker", err));
+    } else {
+        console.log("COI: Page is already isolated. Ready to go.");
     }
 }
