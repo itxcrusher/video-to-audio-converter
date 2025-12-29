@@ -17,8 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.7/dist/umd/ffmpeg.js"></script>
-    <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -89,8 +88,8 @@
     </div>
 
     <script>
-        const { FFmpeg } = FFmpegWASM;
-        const { fetchFile, toBlobURL } = FFmpegUtil;
+        // Using the v0.10.1 API which is more stable for CDNs
+        const { createFFmpeg, fetchFile } = FFmpeg;
         let ffmpeg = null;
         
         const statusEl = document.getElementById('status');
@@ -109,27 +108,19 @@
 
         const loadFFmpeg = async () => {
             if (ffmpeg) return;
-            ffmpeg = new FFmpeg();
-            ffmpeg.on('log', ({ message }) => { 
-                // console.log(message); 
-            });
             
+            // Create the engine instance with logging enabled
+            ffmpeg = createFFmpeg({ log: false });
+
             spinner.classList.remove('hidden');
             try {
-                const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd';
-                
-                log("Downloading engine files...", 'info');
-                
-                await ffmpeg.load({
-                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                });
-
+                log("Downloading engine files (v0.10)...");
+                await ffmpeg.load();
                 statusEl.innerHTML = ""; 
                 log("✅ Engine Ready. Please select a video file.", 'success');
             } catch (e) {
                 log("❌ Engine Failed: " + e.message, 'error');
-                log("Check your internet connection or try refreshing.", 'error');
+                console.error(e);
             }
             spinner.classList.add('hidden');
         };
@@ -139,7 +130,13 @@
             downloadsEl.innerHTML = '';
             statusEl.innerHTML = ''; 
             
-            if (!ffmpeg) await loadFFmpeg();
+            if (!ffmpeg || !ffmpeg.isLoaded()) {
+                 await loadFFmpeg();
+            }
+            
+            // Double check if load succeeded
+            if (!ffmpeg.isLoaded()) return;
+
             spinner.classList.remove('hidden');
 
             for (const file of files) {
@@ -149,10 +146,16 @@
                 log(`Processing: <b>${name}</b>...`);
 
                 try {
-                    await ffmpeg.writeFile(name, await fetchFile(file));
-                    await ffmpeg.exec(['-i', name, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputName]);
-                    const data = await ffmpeg.readFile(outputName);
-                    
+                    // Write file to memory
+                    ffmpeg.FS('writeFile', name, await fetchFile(file));
+
+                    // Run conversion
+                    await ffmpeg.run('-i', name, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputName);
+
+                    // Read result
+                    const data = ffmpeg.FS('readFile', outputName);
+
+                    // Create download link
                     const url = URL.createObjectURL(new Blob([data.buffer], { type: 'audio/mp3' }));
                     const downloadBtn = document.createElement('a');
                     downloadBtn.href = url;
@@ -164,6 +167,13 @@
                     `;
                     downloadsEl.appendChild(downloadBtn);
                     log(`✅ Finished: ${outputName}`, 'success');
+
+                    // Cleanup memory
+                    try {
+                        ffmpeg.FS('unlink', name);
+                        ffmpeg.FS('unlink', outputName);
+                    } catch(e) {} // ignore unlink errors
+
                 } catch (err) {
                     log(`❌ Error converting ${name}: ${err.message}`, 'error');
                 }
@@ -173,6 +183,7 @@
 
         document.getElementById('uploader').addEventListener('change', transcode);
 
+        // Theme Toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
         const sunIcon = document.getElementById('theme-toggle-sun-icon');
         const moonIcon = document.getElementById('theme-toggle-moon-icon');
@@ -194,6 +205,7 @@
         });
         updateIcons();
 
+        // Start loading immediately
         loadFFmpeg();
     </script>
     
