@@ -21,45 +21,23 @@
     <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .log-area::-webkit-scrollbar { width: 8px; }
+        .log-area::-webkit-scrollbar-track { background: transparent; }
+        .log-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .dark .log-area::-webkit-scrollbar-thumb { background-color: #475569; }
+        
         #hub-bubble {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 56px;
-            height: 56px;
-            background-color: #0ea5e9; /* sky-500 */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+            width: 56px; height: 56px;
+            background-color: #0ea5e9; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
         }
-        #hub-bubble:hover {
-            transform: scale(1.1);
-            background-color: #0284c7; /* sky-600 */
-        }
-        /* Custom scrollbar for log area */
-        .log-area::-webkit-scrollbar {
-            width: 8px;
-        }
-        .log-area::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        .log-area::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 4px;
-        }
-        .dark .log-area::-webkit-scrollbar-thumb {
-            background-color: #475569;
-        }
+        #hub-bubble:hover { transform: scale(1.1); background-color: #0284c7; }
     </style>
     <script>
-        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark')
         } else {
@@ -70,9 +48,9 @@
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col items-center justify-center min-h-screen p-4 antialiased transition-colors duration-300">
 
     <div class="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
-        <button id="theme-toggle" type="button" title="Toggle light/dark mode" class="bg-white dark:bg-slate-800 p-3 rounded-full text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-200 shadow-md">
-            <svg id="theme-toggle-sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun hidden"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-            <svg id="theme-toggle-moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <button id="theme-toggle" type="button" class="bg-white dark:bg-slate-800 p-3 rounded-full text-slate-500 dark:text-slate-400 hover:text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-md">
+            <svg id="theme-toggle-sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg id="theme-toggle-moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
     </div>
 
@@ -83,7 +61,6 @@
         </header>
 
         <main class="p-6 md:p-8 space-y-6">
-            
             <div class="space-y-2">
                 <label for="uploader" class="block text-sm font-medium text-slate-500 dark:text-slate-400">Select Video Files</label>
                 <input type="file" id="uploader" multiple accept="video/*" class="block w-full text-sm text-slate-500 dark:text-slate-400
@@ -99,23 +76,21 @@
 
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">Processing Log</label>
+                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400">Status</label>
                     <span id="spinner" class="hidden text-sky-500 animate-spin">
                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
                     </span>
                 </div>
-                <div id="status" class="log-area h-32 w-full bg-slate-100 dark:bg-slate-900 rounded-lg p-3 text-xs font-mono text-slate-600 dark:text-slate-300 overflow-y-auto border border-slate-200 dark:border-slate-700 whitespace-pre-wrap">Waiting for files...</div>
+                <div id="status" class="log-area h-32 w-full bg-slate-100 dark:bg-slate-900 rounded-lg p-3 text-xs font-mono text-slate-600 dark:text-slate-300 overflow-y-auto border border-slate-200 dark:border-slate-700 whitespace-pre-wrap">Initializing engine...</div>
             </div>
 
-            <div id="downloads" class="space-y-3">
-                </div>
-
+            <div id="downloads" class="space-y-3"></div>
         </main>
     </div>
 
     <script>
         const { FFmpeg } = FFmpegWASM;
-        const { fetchFile } = FFmpegUtil;
+        const { fetchFile, toBlobURL } = FFmpegUtil;
         let ffmpeg = null;
         
         const statusEl = document.getElementById('status');
@@ -125,7 +100,6 @@
         const log = (msg, type = 'info') => {
             let colorClass = type === 'success' ? 'text-green-600 dark:text-green-400' : 
                              type === 'error' ? 'text-red-600 dark:text-red-400' : '';
-            
             const div = document.createElement('div');
             div.innerHTML = `<span class="${colorClass}">${msg}</span>`;
             div.classList.add('mb-1');
@@ -134,56 +108,52 @@
         }
 
         const loadFFmpeg = async () => {
+            if (ffmpeg) return;
             ffmpeg = new FFmpeg();
-            ffmpeg.on('log', ({ message }) => {
-                // Optional: filter verbose logs if needed
+            ffmpeg.on('log', ({ message }) => { 
                 // console.log(message); 
             });
             
-            log("Loading conversion engine (FFmpeg)... this may take a moment.");
             spinner.classList.remove('hidden');
-            
             try {
+                const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd';
+                
+                log("Downloading engine files...", 'info');
+                
                 await ffmpeg.load({
-                    coreURL: "https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd/ffmpeg-core.js",
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
                 });
-                log("Engine ready! Starting conversion...", 'success');
+
+                statusEl.innerHTML = ""; 
+                log("✅ Engine Ready. Please select a video file.", 'success');
             } catch (e) {
-                log("Error loading engine: " + e.message, 'error');
-                spinner.classList.add('hidden');
+                log("❌ Engine Failed: " + e.message, 'error');
+                log("Check your internet connection or try refreshing.", 'error');
             }
+            spinner.classList.add('hidden');
         };
 
         const transcode = async ({ target: { files } }) => {
             if (files.length === 0) return;
-
-            // Clear previous downloads and reset UI
             downloadsEl.innerHTML = '';
             statusEl.innerHTML = ''; 
-
+            
             if (!ffmpeg) await loadFFmpeg();
             spinner.classList.remove('hidden');
 
             for (const file of files) {
                 const name = file.name;
-                // Remove extension and add .mp3
                 const outputName = name.replace(/\.[^/.]+$/, "") + ".mp3";
                 
                 log(`Processing: <b>${name}</b>...`);
 
                 try {
-                    // Write file to memory
                     await ffmpeg.writeFile(name, await fetchFile(file));
-
-                    // Run conversion: -vn (no video), -acodec libmp3lame, -q:a 2 (high quality VBR)
                     await ffmpeg.exec(['-i', name, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputName]);
-
-                    // Read result
                     const data = await ffmpeg.readFile(outputName);
-
-                    // Create download link button
-                    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'audio/mp3' }));
                     
+                    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'audio/mp3' }));
                     const downloadBtn = document.createElement('a');
                     downloadBtn.href = url;
                     downloadBtn.download = outputName;
@@ -192,26 +162,17 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                         Download ${outputName}
                     `;
-                    
                     downloadsEl.appendChild(downloadBtn);
                     log(`✅ Finished: ${outputName}`, 'success');
-
-                    // Cleanup memory
-                    // await ffmpeg.deleteFile(name);
-                    // await ffmpeg.deleteFile(outputName);
-
                 } catch (err) {
                     log(`❌ Error converting ${name}: ${err.message}`, 'error');
-                    console.error(err);
                 }
             }
             spinner.classList.add('hidden');
-            log("All operations completed.");
         };
 
         document.getElementById('uploader').addEventListener('change', transcode);
 
-        // Theme Toggle Logic
         const themeToggleBtn = document.getElementById('theme-toggle');
         const sunIcon = document.getElementById('theme-toggle-sun-icon');
         const moonIcon = document.getElementById('theme-toggle-moon-icon');
@@ -228,15 +189,12 @@
 
         themeToggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
-            if (document.documentElement.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-            } else {
-                localStorage.theme = 'light';
-            }
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
             updateIcons();
         });
-
         updateIcons();
+
+        loadFFmpeg();
     </script>
     
     <a href="https://muhammadhassaanjaved.com/tools.html" id="hub-bubble" title="View All Tools" target="_blank" rel="noopener noreferrer">
@@ -247,5 +205,5 @@
             <rect x="3" y="14" width="7" height="7"></rect>
         </svg>
     </a>
-    </body>
+</body>
 </html>
